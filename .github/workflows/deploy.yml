@@ -1,0 +1,60 @@
+name: Deploy push function
+on:
+  push:
+    branches: [main]
+    paths: ["functions/**", "firebase.json"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install function dependencies
+        run: npm install --no-audit --no-fund
+        working-directory: functions
+
+      - name: Check function code parses
+        run: node --check functions/index.js
+
+      - name: Write and check credentials
+        env:
+          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$SA_JSON" ]; then
+            echo "::error::Secret FIREBASE_SERVICE_ACCOUNT is missing. Add it in repo Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          printf '%s' "$SA_JSON" > "$RUNNER_TEMP/sa.json"
+          python3 - <<'PY'
+          import json, os, sys
+          p = os.path.join(os.environ["RUNNER_TEMP"], "sa.json")
+          try:
+              d = json.load(open(p))
+          except Exception as e:
+              print("::error::FIREBASE_SERVICE_ACCOUNT is not valid JSON. Paste the whole downloaded key file. (%s)" % e)
+              sys.exit(1)
+          print("service account:", d.get("client_email"), "| project:", d.get("project_id"))
+          if d.get("project_id") != "hunter-prey":
+              print("::error::This key belongs to project %r, not hunter-prey." % d.get("project_id"))
+              sys.exit(1)
+          PY
+
+      - name: Deploy function
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+        run: npx -y firebase-tools@latest deploy --only functions --project hunter-prey --non-interactive --force
+
+      - name: Show Firebase log on failure
+        if: failure()
+        run: |
+          echo "---- firebase-debug.log (last 120 lines) ----"
+          tail -n 120 firebase-debug.log 2>/dev/null || echo "no debug log found"
