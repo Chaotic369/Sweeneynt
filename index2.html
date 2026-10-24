@@ -1,0 +1,2671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hunter & Prey 💘</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+
+<style>
+/* ================= THEME VARIABLES ================= */
+:root{
+  --bg:#000000;
+  --panel:#121212;
+  --left:#262626;
+  --right:#3797f0;
+  --text:#ffffff;
+  --border:rgba(255,255,255,0.08);
+  --overlay:rgba(0,0,0,0.65);
+  --sheet:#262626;
+}
+
+/* ===== THEMES ===== */
+.theme-0{--bg:#000000;--panel:#121212;--left:#262626;--right:#3797f0;--text:#ffffff;--border:rgba(255,255,255,0.08);--overlay:rgba(0,0,0,0.65);--sheet:#262626}
+
+/* ================= BASE ================= */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  background:var(--bg);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+  color:var(--text);
+  height:100dvh;
+  overflow:hidden;
+}
+.app{
+  max-width:520px;
+  margin:0 auto;
+  height:100dvh;
+  display:none;
+  flex-direction:column;
+  overflow:hidden;
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+}
+
+/* HEADER */
+.header{
+  padding:10px 16px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:rgba(0,0,0,0.4);
+}
+.ig-user-info{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.ig-avatar{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  background:var(--panel);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  cursor:pointer;
+}
+.ig-avatar img{width:100%;height:100%;object-fit:cover}
+.ig-meta{
+  display:flex;
+  flex-direction:column;
+}
+.ig-meta h1{
+  font-size:15px;
+  font-weight:700;
+  letter-spacing:-0.2px;
+}
+.ig-substatus{
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+.status{
+  font-size:11px;
+  opacity:.6;
+}
+.status.online{color:#10b981;opacity:1}
+.status.typing-text{color:var(--right);font-weight:600;font-style:italic}
+.actions{
+  display:flex;
+  gap:16px;
+  align-items:center;
+}
+.action{
+  font-size:18px;
+  cursor:pointer;
+  transition:transform 0.15s ease;
+}
+.action:active{transform:scale(0.9)}
+
+/* CHAT */
+.messages{
+  flex:1;
+  overflow-y:auto;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.bubble{
+  max-width:76%;
+  padding:10px 15px;
+  border-radius:18px;
+  position:relative;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-touch-callout:none;
+  cursor:pointer;
+  word-break:break-word;
+  transition:transform 0.2s cubic-bezier(0.18,0.89,0.32,1.28);
+}
+.bubble:active{transform:scale(0.98)}
+.right{
+  background:var(--right);
+  color:#fff;
+  margin-left:auto;
+  border-bottom-right-radius:4px;
+}
+.left{
+  background:var(--left);
+  color:var(--text);
+  margin-right:auto;
+  border-bottom-left-radius:4px;
+}
+.bubble-reply-ref{
+  background:var(--border);
+  border-left:3px solid currentColor;
+  border-radius:4px;
+  padding:4px 8px;
+  margin-bottom:6px;
+  font-size:11px;
+  opacity:0.9;
+}
+.bubble-reply-ref .reply-user{
+  font-weight:700;
+  font-size:10px;
+}
+.time{
+  font-size:9px;
+  opacity:.45;
+  margin-top:4px;
+  text-align:right;
+}
+.reactions{
+  position:absolute;
+  bottom:-8px;
+  right:8px;
+  background:var(--panel);
+  border:2px solid var(--bg);
+  border-radius:12px;
+  padding:1px 5px;
+  font-size:11px;
+  display:flex;
+  align-items:center;
+  gap:2px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.4);
+  z-index:5;
+}
+
+.system-msg{
+  text-align:center;
+  font-size:11.5px;
+  color:var(--text);
+  opacity:0.55;
+  margin:12px 0;
+  font-weight:500;
+  user-select:none;
+}
+
+/* INSTAGRAM STYLE CONTEXT OVERLAY & POPUP */
+.context-overlay{
+  position:fixed;
+  inset:0;
+  background:var(--overlay);
+  z-index:3000;
+  display:none;
+}
+.context-menu{
+  position:absolute;
+  width:240px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  animation:pop 0.2s cubic-bezier(0.18,0.89,0.32,1.28);
+}
+@keyframes pop{from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1}}
+.ig-reaction-capsule{
+  background:var(--sheet);
+  border-radius:32px;
+  padding:10px 14px;
+  display:flex;
+  justify-content:space-between;
+  font-size:22px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.4);
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-touch-callout:none;
+}
+.ig-reaction-capsule span{
+  cursor:pointer;
+  transition:transform 0.15s cubic-bezier(0.18,0.89,0.32,1.28);
+  line-height:1;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-touch-callout:none;
+}
+.ig-reaction-capsule span:active{transform:scale(1.4)}
+.ig-action-sheet{
+  width:100%;
+  background:var(--sheet);
+  border-radius:18px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.ig-action-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 20px;
+  background:transparent;
+  border:none;
+  border-bottom:1px solid var(--border);
+  color:var(--text);
+  font-size:15px;
+  font-weight:500;
+  cursor:pointer;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-touch-callout:none;
+}
+.ig-action-item:last-child{border-bottom:none}
+.ig-action-item:active{background:var(--border)}
+.ig-action-item.danger{color:#ed4956;font-weight:600}
+
+/* INPUT ACTION BANNER (REPLY/EDIT) */
+.input-action-banner{
+  padding:8px 16px;
+  background:var(--border);
+  border-top:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:12px;
+}
+.banner-text{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  overflow:hidden;
+  max-width:85%;
+}
+.banner-title{
+  font-weight:700;
+  color:var(--right);
+  font-size:11px;
+}
+.banner-desc{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  opacity:.75;
+}
+.banner-close{
+  cursor:pointer;
+  font-size:16px;
+  opacity:.6;
+  padding:2px 6px;
+}
+.banner-close:hover{opacity:1}
+
+/* VOICE */
+.voice{display:flex;align-items:center;gap:10px;min-width:180px}
+.play{
+  width:32px;height:32px;border-radius:50%;
+  background:#fff;color:#000;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;cursor:pointer;
+  flex-shrink:0;
+}
+.waveform{
+  flex:1;
+  display:flex;
+  align-items:center;
+  gap:2px;
+  height:24px;
+  cursor:pointer;
+  position:relative;
+}
+.waveform-bar{
+  width:2.5px;
+  border-radius:2px;
+  background:rgba(255,255,255,.35);
+  flex-shrink:0;
+  transition:background 0.1s linear;
+}
+.waveform-bar.played{background:#fff;}
+.duration{font-size:11px;opacity:.7;min-width:32px;text-align:right;flex-shrink:0;}
+
+/* VOICE RECORDING BAR */
+.voice-recording-bar{
+  display:none;
+  flex:1;
+  align-items:center;
+  gap:10px;
+  padding:0 6px;
+  position:relative;
+  overflow:hidden;
+}
+.voice-recording-bar.active{display:flex;}
+.rec-dot{
+  width:10px;height:10px;
+  border-radius:50%;
+  background:#ef4444;
+  flex-shrink:0;
+  animation:recPulse 1.1s ease-in-out infinite;
+}
+@keyframes recPulse{0%,100%{opacity:1}50%{opacity:.3}}
+.rec-timer{
+  font-size:14px;
+  font-weight:600;
+  min-width:38px;
+  flex-shrink:0;
+  font-variant-numeric:tabular-nums;
+}
+.rec-slide-hint{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  font-size:13px;
+  opacity:.55;
+  white-space:nowrap;
+}
+.rec-cancel-btn{
+  width:28px;height:28px;
+  border-radius:50%;
+  background:var(--panel);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  flex-shrink:0;
+  color:var(--text);
+  opacity:.7;
+}
+.rec-cancel-btn:active{opacity:1;background:var(--border);}
+.rec-cancelled-flash{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--panel);
+  font-size:13px;
+  font-weight:600;
+  color:#ef4444;
+  opacity:0;
+  pointer-events:none;
+}
+.rec-cancelled-flash.show{
+  animation:cancelFlash 0.6s ease forwards;
+}
+@keyframes cancelFlash{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
+
+/* MEDIA */
+.media{max-width:200px;border-radius:16px;overflow:hidden;cursor:pointer}
+.media img,.media video{width:100%;display:block}
+.bubble.media-only {
+  background: transparent !important;
+  padding: 0 !important;
+  border: none !important;
+}
+.bubble.media-only .time {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  background: rgba(0,0,0,0.5);
+  padding: 3px 8px;
+  border-radius: 12px;
+  color: #fff;
+  z-index: 2;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.bubble.media-only .bubble-reply-ref {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2;
+  border-radius: 8px;
+  border-left-color: var(--right);
+}
+.large-file-placeholder {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 170px;
+  aspect-ratio: 1;
+}
+
+/* ATTACHMENT MENU */
+.attachment-menu{
+  position:absolute;
+  bottom:100%;
+  left:10px;
+  margin-bottom:10px;
+  background:var(--sheet);
+  border-radius:16px;
+  display:none;
+  flex-direction:column;
+  box-shadow:0 4px 12px rgba(0,0,0,0.4);
+  z-index:20;
+  overflow:hidden;
+  width:160px;
+  animation:pop 0.2s cubic-bezier(0.18,0.89,0.32,1.28);
+}
+.attachment-menu.show{display:flex;}
+.attachment-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 16px;
+  color:var(--text);
+  font-size:14px;
+  font-weight:500;
+  cursor:pointer;
+  border-bottom:1px solid var(--border);
+}
+.attachment-item:last-child{border-bottom:none}
+.attachment-item:active{background:var(--border)}
+
+/* INPUT */
+.input{
+  padding:10px;
+  border-top:none;
+  display:flex;
+  gap:8px;
+  align-items:center;
+  background:rgba(0,0,0,0.4);
+}
+textarea{
+  flex:1;
+  background:var(--panel);
+  border:none;
+  outline:none;
+  color:var(--text);
+  padding:12px 16px;
+  border-radius:22px;
+  resize:none;
+  font-family:inherit;
+}
+.icon{
+  width:42px;height:42px;border-radius:50%;
+  background:var(--panel);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  font-size:20px;
+}
+.send{background:var(--right);color:#fff}
+
+/* VIEWER */
+.viewer{
+  position:fixed;inset:0;background:#000;
+  display:none;align-items:center;justify-content:center;
+  z-index:1000;
+}
+.viewer img,.viewer video{max-width:100%;max-height:100%}
+
+#progressBar {
+  position: fixed; top: 0; left: 0; height: 3px; background: var(--right); z-index: 50000;
+  width: 0%; display: none; box-shadow: none; border: none; transition: width 0.1s linear;
+}
+#progressBar.active { display: block; }
+
+/* MODAL */
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.8);
+  display:flex;align-items:center;justify-content:center;
+  z-index:2000;
+}
+.modal-content{
+  background:transparent;
+  padding:32px 24px;
+  max-width:340px;
+  width:90%;
+}
+.pin-entry-container{
+  display:flex;
+  gap:16px;
+  align-items:center;
+}
+.modal-content input{
+  flex:1;
+  width:100%;
+  padding:16px;
+  background:var(--panel);
+  border:none;
+  border-radius:24px;
+  color:var(--text);
+  opacity:0.5;
+  font-size:18px;
+  text-align:center;
+  letter-spacing:6px;
+  font-family:monospace;
+  outline:none;
+  transition: all 0.2s ease;
+}
+.modal-content input:focus{
+  background:var(--border);
+  opacity:1;
+}
+.modal-content button{
+  width:52px;
+  height:52px;
+  background:var(--border);
+  color:var(--text);
+  border:none;
+  border-radius:50%;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  transition: opacity 0.2s ease;
+}
+.modal-content button:active{
+  opacity: 0.6;
+}
+.role-select{
+  display:flex;
+  gap:16px;
+  margin-bottom:24px;
+}
+.role-btn{
+  flex:1;
+  padding:16px;
+  background:var(--panel);
+  border:none;
+  border-radius:24px;
+  cursor:pointer;
+  text-align:center;
+  font-size:14px;
+  font-weight:600;
+  color:var(--text);
+  opacity:0.5;
+  transition: all 0.2s ease;
+}
+.role-btn.active{
+  opacity:1;
+  background:var(--border);
+}
+
+/* SETTINGS MODAL */
+.settings-popup-overlay{
+  position:fixed;
+  inset:0;
+  background:var(--overlay);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:2000;
+}
+.settings-popup{
+  width:260px;
+  background:var(--sheet);
+  border-radius:22px;
+  padding:20px;
+  box-shadow:0 12px 40px rgba(0,0,0,.5);
+  animation:popupIn 0.18s cubic-bezier(0.18,0.89,0.32,1.15);
+}
+@keyframes popupIn{from{transform:scale(0.92);opacity:0}to{transform:scale(1);opacity:1}}
+.popup-title{
+  font-size:16px;
+  font-weight:700;
+  letter-spacing:-0.2px;
+  margin-bottom:16px;
+  text-align:center;
+}
+.popup-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+}
+.popup-row-label{
+  font-size:12px;
+  opacity:.55;
+  width:60px;
+  flex-shrink:0;
+}
+.color-preview-dot{
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  flex-shrink:0;
+  border:2px solid var(--border);
+}
+#colorSlider{
+  flex:1;
+  -webkit-appearance:none;
+  appearance:none;
+  width:100%;
+  height:30px;
+  border:none;
+  border-radius:8px;
+  background:none;
+  cursor:pointer;
+  padding:0;
+}
+#colorSlider::-webkit-color-swatch-wrapper{padding:0;}
+#colorSlider::-webkit-color-swatch{border:none;border-radius:8px;}
+#colorSlider::-moz-color-swatch{border:none;border-radius:8px;}
+.wallpaper-preview{
+  width:26px;
+  height:26px;
+  border-radius:8px;
+  background:var(--panel);
+  background-size:cover;
+  background-position:center;
+  flex-shrink:0;
+  border:1px solid var(--border);
+}
+.wallpaper-choose-btn{
+  flex:1;
+  padding:8px 12px;
+  background:var(--panel);
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:8px;
+  cursor:pointer;
+  font-size:12px;
+  font-weight:600;
+}
+.wallpaper-choose-btn:active{background:var(--border);}
+.wallpaper-remove-btn{
+  width:26px;height:26px;
+  border-radius:50%;
+  background:var(--panel);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  flex-shrink:0;
+  color:var(--text);
+  opacity:.7;
+}
+.wallpaper-remove-btn:active{opacity:1;background:var(--border);}
+.settings-text-input{
+  flex:1;
+  width:100%;
+  padding:8px 12px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--text);
+  font-size:13px;
+  outline:none;
+}
+.settings-text-input:focus{border-color:var(--right);}
+.popup-done-btn{
+  width:100%;
+  padding:10px;
+  background:var(--right);
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:700;
+  margin-top:6px;
+}
+.popup-done-btn:active{opacity:.85;}
+</style>
+</head>
+
+<body class="theme-0">
+<div id="progressBar"></div>
+<div class="app">
+
+<div class="header">
+  <div class="ig-user-info">
+    <div class="ig-avatar" id="partnerAvatar">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+    </div>
+    <div class="ig-meta">
+      <h1 id="chatTitle">Direct</h1>
+      <div class="ig-substatus">
+        <span class="status" id="status">● offline</span>
+        <span class="status typing-text" id="typingIndicator" style="display:none;">typing...</span>
+      </div>
+    </div>
+  </div>
+  <div class="actions">
+        <div class="action" id="settingsBtn" title="Settings"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>
+        <div class="action" id="clear" title="Clear Chat"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></div>
+      </div>
+  </div>
+
+<div class="messages" id="messages"></div>
+
+<div class="input-action-banner" id="inputActionBanner" style="display:none;">
+  <div class="banner-text">
+    <span class="banner-title" id="bannerTitle">Replying</span>
+    <span class="banner-desc" id="bannerDesc">...</span>
+  </div>
+  <span class="banner-close" id="bannerClose"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>
+</div>
+
+<div class="input" id="inputBar" style="position:relative;">
+  <div class="attachment-menu" id="attachMenu">
+    <label class="attachment-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+      Image
+      <input type="file" hidden class="attach-file" accept="image/*" data-type="image">
+    </label>
+    <label class="attachment-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+      Video
+      <input type="file" hidden class="attach-file" accept="video/*" data-type="video">
+    </label>
+    <label class="attachment-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          Document
+          <input type="file" hidden class="attach-file" accept="*/*" data-type="document">
+        </label>
+    <label class="attachment-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+      Audio
+      <input type="file" hidden class="attach-file" accept="audio/*" data-type="audio">
+    </label>
+  </div>
+  <div class="icon" id="attachBtn" title="Attach">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+  </div>
+  <textarea id="text" placeholder="Message…" rows="1"></textarea>
+  <div class="voice-recording-bar" id="voiceRecordingBar">
+      <div class="rec-dot"></div>
+      <div class="rec-timer" id="recTimer">0:00</div>
+      <div class="rec-slide-hint" id="recHintText">Recording…</div>
+      <div class="rec-cancel-btn" id="recCancelBtn" title="Cancel"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
+      <div class="rec-cancelled-flash" id="recCancelledFlash">Cancelled</div>
+    </div>
+  <div class="icon" id="mic" title="Voice note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg></div>
+  <div class="icon send" id="send" title="Send"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></div>
+</div>
+
+<div class="viewer" id="viewer">
+  <span id="closeViewer" style="position:absolute;top:20px;right:20px;cursor:pointer;color:#fff;"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>
+  <div id="viewerContent"></div>
+</div>
+
+</div>
+
+<!-- SETUP MODAL -->
+<div class="modal" id="setupModal">
+  <div class="modal-content">
+    <div class="role-select">
+          <div class="role-btn" data-role="hunter">Hunt</div>
+          <div class="role-btn" data-role="prey">Prey</div>
+        </div>
+    <div class="pin-entry-container">
+              <input type="password" id="entryPinNode" name="otp_code" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" autocorrect="off" spellcheck="false" data-lpignore="true">
+              <button id="joinBtn" title="Join Chat">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </button>
+        </div>
+        <div id="pinErrorText" style="color:#ef4444; font-size:12.5px; font-weight:500; margin-top:14px; text-align:center; opacity:0; transition:opacity 0.2s; letter-spacing:0.3px;"> </div>
+      </div>
+    </div>
+
+<!-- HIDDEN HUNTER DEVICE SETTINGS (5s press on login backdrop) -->
+<div id="hunterDevicePanel" style="display:none; position:fixed; inset:0; z-index:5000; background:rgba(0,0,0,0.82); align-items:center; justify-content:center;">
+  <div style="background:var(--panel); border-radius:20px; padding:24px 22px; width:min(320px,88%); color:var(--text); font-size:14px;">
+    <div style="font-weight:600; font-size:16px; margin-bottom:6px;">Hunter notifications</div>
+    <div style="opacity:.65; font-size:12.5px; line-height:1.45; margin-bottom:16px;">Make this phone the hunter. It gets an alert for every prey message in every room, even when the app is closed and you are not logged in.</div>
+    <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom:14px;">
+      <input type="checkbox" id="hunterDeviceToggle" style="accent-color:var(--right); width:18px; height:18px; flex:none; opacity:1; padding:0; letter-spacing:0;">
+      <span>I am the hunter. Notify this phone only.</span>
+    </label>
+    <div id="hunterDeviceStatus" style="font-size:12.5px; min-height:18px; opacity:.8; margin-bottom:14px;"></div>
+    <button id="hunterDeviceClose" style="width:100%; height:44px; border-radius:22px; background:var(--border); color:var(--text); border:none; cursor:pointer; font-size:14px;">Done</button>
+  </div>
+</div>
+
+<!-- CROP MODAL -->
+<div class="modal" id="cropModal" style="display:none; z-index:4000; flex-direction:column; gap:20px;">
+  <div style="color:#fff; font-weight:600; font-size:15px;">Drag to pan & zoom</div>
+  <div style="width:260px; height:260px; border-radius:50%; overflow:hidden; position:relative; background:#111; touch-action:none;" id="cropContainer">
+    <img id="cropImg" style="position:absolute; top:0; left:0; transform-origin:top left; cursor:grab;" draggable="false">
+  </div>
+  <input type="range" id="cropZoom" min="1" max="3" step="0.01" value="1" style="width:260px;">
+  <div style="display:flex; gap:16px; width:260px;">
+    <button id="cropCancel" class="role-btn" style="padding:12px; margin:0;">Cancel</button>
+    <button id="cropSave" class="role-btn active" style="padding:12px; margin:0;">Crop & Save</button>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="settings-popup-overlay" id="settingsModal" style="display:none;">
+  <div class="settings-popup">
+    <div class="popup-title">Settings</div>
+
+        <div class="popup-row">
+          <span class="popup-row-label">Storage</span>
+          <div id="storageUsageText" style="flex:1; font-size:13px; color:var(--text); opacity:0.8; font-family:monospace;">Calculating...</div>
+          <button class="action-mini-btn" id="refreshStorageBtn" style="background:var(--border); color:var(--text); border:none; border-radius:8px; cursor:pointer; padding:6px; display:flex; align-items:center; justify-content:center;" title="Refresh Storage"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
+        </div>
+
+        <div class="popup-row">
+              <span class="popup-row-label">Color</span>
+          <div class="color-preview-dot" id="colorPreviewDot"></div>
+          <input type="color" id="colorSlider" value="#3797f0">
+        </div>
+
+        <div class="popup-row">
+          <span class="popup-row-label">My Avatar</span>
+          <input type="file" hidden id="myAvatarInput" accept="image/*">
+          <div class="wallpaper-preview" id="myAvatarPreview"></div>
+          <button class="wallpaper-choose-btn" id="myAvatarBtn">Choose</button>
+          <div class="wallpaper-remove-btn" id="myAvatarRemoveBtn" title="Remove avatar" style="display:none;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
+        </div>
+
+        <div class="popup-row">
+          <span class="popup-row-label">My Name</span>
+          <input type="text" id="myNameInput" class="settings-text-input" placeholder="Name...">
+        </div>
+
+        <div class="popup-row">
+              <span class="popup-row-label">Their Name</span>
+              <input type="text" id="partnerNameInput" class="settings-text-input" placeholder="Name...">
+            </div>
+    
+            <div class="popup-row">
+                          <span class="popup-row-label">Chat PIN</span>
+                          <input type="password" id="pinUpdateInput" class="settings-text-input" inputmode="numeric" placeholder="****" autocomplete="new-password">
+                        </div>
+
+                    <div class="popup-row">
+                                              <span class="popup-row-label">Allowed</span>
+                                              <input type="text" id="allowedRoomsInput" class="settings-text-input" placeholder="2007, 7002..." autocomplete="off">
+                                            </div>
+
+                                        <div class="popup-row">
+                                                                                      <span class="popup-row-label">My Alerts</span>
+                                                                                      <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; user-select:none;">
+                                                                                        <input type="checkbox" id="myNotificationsToggle" style="accent-color:var(--right); width:16px; height:16px; cursor:pointer;">
+                                                                                        <span>Receive hints</span>
+                                                                                      </label>
+                                                                                    </div>
+
+                                                                                <div class="popup-row" id="hunterMasterControlRow" style="display:none;">
+                                                                                      <span class="popup-row-label">Sound</span>
+                                                                                      <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; user-select:none;">
+                                                                                        <select id="notifySoundSelect" class="settings-text-input"><option value="chime">Chime</option><option value="ding">Ding</option><option value="bubble">Bubble</option><option value="pop">Pop</option><option value="alert">Alert</option><option value="none">Silent</option></select>
+                                                                                        <span id="notifySoundPreview" style="cursor:pointer;font-size:14px;opacity:.7;padding:0 4px;">▶</span>
+                                                                                      </label>
+                                                                                    </div>
+
+                    <div class="popup-row">
+                          <span class="popup-row-label">Wallpaper</span>
+                  <input type="file" hidden id="wallpaperInput" accept="image/*">
+          <div class="wallpaper-preview" id="wallpaperPreview"></div>
+          <button class="wallpaper-choose-btn" id="wallpaperBtn">Choose</button>
+          <div class="wallpaper-remove-btn" id="wallpaperRemoveBtn" title="Remove wallpaper" style="display:none;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
+        </div>
+
+    <button class="popup-done-btn" id="closeSettingsBtn">Done</button>
+  </div>
+</div>
+
+<!-- INSTAGRAM CONTEXT MENU -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<div class="context-overlay" id="contextOverlay">
+  <div class="context-menu">
+    <div class="ig-reaction-capsule" id="contextEmojis">
+      <span data-emoji="❤️">❤️</span>
+      <span data-emoji="😂">😂</span>
+      <span data-emoji="😮">😮</span>
+      <span data-emoji="😢">😢</span>
+      <span data-emoji="🔥">🔥</span>
+      <span data-emoji="👏">👏</span>
+    </div>
+    <div class="ig-action-sheet">
+          <button class="ig-action-item" id="contextReply">
+            <span>Reply</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 17 4 12 9 7"></polyline><path d="M20 18v-2a4 4 0 0 0-4-4H4"></path></svg>
+          </button>
+          <button class="ig-action-item" id="contextCopy">
+            <span>Copy</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          </button>
+          <button class="ig-action-item" id="contextEdit" style="display:none;">
+                      <span>Edit</span>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </button>
+                    <button class="ig-action-item" id="contextSave" style="display:none;">
+                      <span id="contextSaveText">Save</span>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    </button>
+                    <button class="ig-action-item danger" id="contextUnsend" style="display:none;">
+            <span>Unsend</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          </button>
+        </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+import { getMessaging, getToken } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js';
+import { getDatabase, ref, push, onValue, get, set, remove, onDisconnect, update, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyAau9fKT3kxa17lJb4g0QIqlhipJvWXPMw",
+  authDomain: "hunter-prey.firebaseapp.com",
+  databaseURL: "https://hunter-prey-default-rtdb.firebaseio.com",
+  projectId: "hunter-prey",
+  storageBucket: "hunter-prey.firebasestorage.app",
+  messagingSenderId: "533931279568",
+  appId: "1:533931279568:web:26dc7f86194ecfaa73cad5",
+  measurementId: "G-FMC7T9SC39"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+/* SUPABASE CONFIG */
+const SUPABASE_URL = 'https://fxnrugbvbfyamtrfmjea.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_FnWYWD7C9Tvc1YNtVYQ1dA_aPwVsCmE';
+const BUCKET_NAME = 'docs';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const $progress = document.getElementById('progressBar');
+function showProgress(pct) {
+  $progress.style.width = pct + '%';
+  $progress.classList.add('active');
+}
+function hideProgress() {
+  $progress.style.width = '100%';
+  setTimeout(() => { $progress.classList.remove('active'); $progress.style.width = '0%'; }, 200);
+}
+
+async function uploadToSupabaseWithProgress(file, uniqueName) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `${SUPABASE_URL}/storage/v1/object/${BUCKET_NAME}/${uniqueName}`, true);
+    xhr.setRequestHeader('apikey', SUPABASE_ANON_KEY);
+    xhr.setRequestHeader('Authorization', `Bearer ${SUPABASE_ANON_KEY}`);
+    xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+    
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) {
+        const pct = Math.round((e.loaded / e.total) * 100);
+        showProgress(pct);
+      }
+    };
+    
+    xhr.onload = () => {
+      hideProgress();
+      if (xhr.status >= 200 && xhr.status < 300) {
+        const { data } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(uniqueName);
+        resolve(data.publicUrl);
+      } else reject(xhr.responseText);
+    };
+    xhr.onerror = () => { hideProgress(); reject('Network connection broken'); };
+        xhr.send(file);
+      });
+    }
+
+    // Temporary Storage for files > 50MB
+    async function uploadToAlternativeWithProgress(file) {
+      return new Promise((resolve, reject) => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://tmpfiles.org/api/v1/upload', true);
+    
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const pct = Math.round((e.loaded / e.total) * 100);
+            showProgress(pct);
+          }
+        };
+    
+        xhr.onload = () => {
+          hideProgress();
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const res = JSON.parse(xhr.responseText);
+              if (res.status === "success" && res.data && res.data.url) {
+                // tmpfiles returns a viewer link, we must convert it to a direct media download link
+                const directUrl = res.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+                resolve(directUrl);
+              } else {
+                reject("Upload rejected by tmpfiles");
+              }
+            } catch (err) {
+              reject("Parse error from alternative host");
+            }
+          } else {
+            reject("HTTP Error " + xhr.status);
+          }
+        };
+        xhr.onerror = () => { hideProgress(); reject('Network blocked (Check Adblock or ISP)'); };
+        xhr.send(formData);
+      });
+    }
+
+async function calculateStorage() {
+  const usageText = document.getElementById('storageUsageText');
+  if(!usageText) return;
+  usageText.textContent = "Calculating...";
+  try {
+    let totalBytes = 0;
+    let offset = 0;
+    while (true) {
+      const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list('', { limit: 1000, offset });
+      if (error || !data || data.length === 0) break;
+      data.forEach(f => totalBytes += (f.metadata?.size || 0));
+      if (data.length < 1000) break;
+      offset += 1000;
+    }
+    const mb = (totalBytes / (1024 * 1024)).toFixed(2);
+    usageText.textContent = `${mb} MB used`;
+  } catch(e) {
+    console.error(e);
+    usageText.textContent = "Error";
+  }
+}
+
+/* STATE */
+const isHunterDevice = () => localStorage.getItem("hp_hunter_device") === "1";
+let role = isHunterDevice() ? "hunter" : (localStorage.getItem("hp_role") || null);
+let roomCode = null; // Forces you to type it every time
+
+/* ELEMENTS */
+const messages = document.getElementById("messages");
+const text = document.getElementById("text");
+const send = document.getElementById("send");
+const attachBtn = document.getElementById("attachBtn");
+const attachMenu = document.getElementById("attachMenu");
+const mic = document.getElementById("mic");
+const viewer = document.getElementById("viewer");
+const viewerContent = document.getElementById("viewerContent");
+const closeViewer = document.getElementById("closeViewer");
+const setupModal = document.getElementById("setupModal");
+const roomCodeInput = document.getElementById("entryPinNode");
+const joinBtn = document.getElementById("joinBtn");
+const pinErrorText = document.getElementById("pinErrorText");
+const status = document.getElementById("status");
+const typingIndicator = document.getElementById("typingIndicator");
+const contextOverlay = document.getElementById("contextOverlay");
+const partnerAvatar = document.getElementById("partnerAvatar");
+const chatTitle = document.getElementById("chatTitle");
+const inputActionBanner = document.getElementById("inputActionBanner");
+const myAvatarInput = document.getElementById("myAvatarInput");
+const myAvatarPreview = document.getElementById("myAvatarPreview");
+const myAvatarBtn = document.getElementById("myAvatarBtn");
+const myAvatarRemoveBtn = document.getElementById("myAvatarRemoveBtn");
+const myNameInput = document.getElementById("myNameInput");
+const partnerNameInput = document.getElementById("partnerNameInput");
+const pinUpdateInput = document.getElementById("pinUpdateInput");
+const allowedRoomsInput = document.getElementById("allowedRoomsInput");
+const myNotificationsToggle = document.getElementById("myNotificationsToggle");
+const notifySoundSelect = document.getElementById("notifySoundSelect");
+const hunterMasterControlRow = document.getElementById("hunterMasterControlRow");
+
+let activeMessageId = null;
+let isLongPress = false;
+let replyingTo = null;
+let editingMessageId = null;
+let allMsgs = [];
+
+/* SETUP */
+setupModal.style.display = "flex"; // Always show modal initially
+roomCodeInput.value = ""; // Ensure PIN is always blank on reload
+localStorage.removeItem("hp_room"); // Nuke any old saved PINs from previous versions
+
+document.querySelectorAll(".role-btn").forEach(btn => {
+  if (role && btn.dataset.role === role) btn.classList.add("active");
+  
+  btn.onclick = () => {
+    document.querySelectorAll(".role-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    role = btn.dataset.role;
+    pinErrorText.style.opacity = "0";
+  };
+});
+
+roomCodeInput.oninput = () => pinErrorText.style.opacity = "0";
+
+joinBtn.onclick = async () => {
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (AudioContextClass) {
+      if (!alertAudioCtx) alertAudioCtx = new AudioContextClass();
+      if (alertAudioCtx.state === 'suspended') alertAudioCtx.resume().catch(() => {});
+    }
+  } catch (e) {}
+  try {
+      if (role === "hunter" && "Notification" in window && Notification.permission === "default" && localStorage.getItem("hp_notify_enabled") !== "false") {
+        const permReq = Notification.requestPermission();
+        if (permReq && permReq.then) permReq.then(() => { if (roomCode) registerHunterPush(); }).catch(() => {});
+      }
+    } catch (e) {}
+    const code = roomCodeInput.value.trim();
+  if (!role) {
+    pinErrorText.textContent = "Please select a role";
+    pinErrorText.style.opacity = "1";
+    return;
+  }
+  
+  joinBtn.style.opacity = "0.5";
+  try {
+    const allowedStr = localStorage.getItem("hp_allowed_rooms") || "2007";
+    const allowedList = allowedStr.split(',').map(r => r.trim()).filter(Boolean);
+    
+    // Check all allowed rooms concurrently
+    const pinChecks = allowedList.map(async r => {
+      const pinSnap = await get(ref(db, `rooms/${r}/settings/pin`));
+      return { room: r, validPin: pinSnap.exists() ? String(pinSnap.val()) : r };
+    });
+    
+    const results = await Promise.all(pinChecks);
+    const match = results.find(res => res.validPin === code);
+    
+    if (!match) {
+      pinErrorText.textContent = "Incorrect PIN";
+      pinErrorText.style.opacity = "1";
+      joinBtn.style.opacity = "1";
+      return;
+    }
+    
+    roomCode = match.room;
+    localStorage.setItem("hp_role", role);
+    setupModal.style.display = "none";
+    document.querySelector('.app').style.display = "flex";
+    initChat();
+  } catch(err) {
+    console.error(err);
+    pinErrorText.textContent = "Network error checking PIN";
+    pinErrorText.style.opacity = "1";
+    joinBtn.style.opacity = "1";
+  }
+};
+
+/* THEME */
+let currentWallpaperUrl = "";
+
+function shiftHexColor(hex, amount, direction) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+  const num = parseInt(hex, 16);
+  let r = (num >> 16) & 255;
+  let g = (num >> 8) & 255;
+  let b = num & 255;
+  if (direction === 'darken') {
+    r = Math.max(0, Math.floor(r * (1 - amount)));
+    g = Math.max(0, Math.floor(g * (1 - amount)));
+    b = Math.max(0, Math.floor(b * (1 - amount)));
+  } else {
+    r = Math.min(255, Math.floor(r + (255 - r) * amount));
+    g = Math.min(255, Math.floor(g + (255 - g) * amount));
+    b = Math.min(255, Math.floor(b + (255 - b) * amount));
+  }
+  return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+}
+
+const THEME_TINT_AMOUNT = 0.12;
+
+function applyThemeColorTint() {
+  const base = { panel: "#121212", left: "#262626", sheet: "#262626" };
+  document.body.style.setProperty('--panel', shiftHexColor(base.panel, THEME_TINT_AMOUNT, 'darken'));
+  document.body.style.setProperty('--left', shiftHexColor(base.left, THEME_TINT_AMOUNT, 'darken'));
+  document.body.style.setProperty('--sheet', shiftHexColor(base.sheet, THEME_TINT_AMOUNT, 'darken'));
+}
+
+function applyWallpaperWithThemeTint(wallpaperUrl) {
+  currentWallpaperUrl = wallpaperUrl || "";
+  const appEl = document.querySelector('.app');
+  if (!currentWallpaperUrl) {
+    appEl.style.backgroundImage = 'none';
+    return;
+  }
+  const tint = 'linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35))';
+  appEl.style.backgroundImage = `${tint}, url('${currentWallpaperUrl}')`;
+}
+
+applyThemeColorTint();
+
+/* PRESENCE */
+function setupPresence() {
+  const presenceRef = ref(db, `rooms/${roomCode}/presence/${role}`);
+  set(presenceRef, { online: true, lastSeen: serverTimestamp() });
+  // Instead of removing presence, update it to offline with a final timestamp
+  onDisconnect(presenceRef).set({ online: false, lastSeen: serverTimestamp() });
+  
+  const otherRole = role === "hunter" ? "prey" : "hunter";
+
+  // Monitor other user's presence
+  onValue(ref(db, `rooms/${roomCode}/presence/${otherRole}`), snapshot => {
+    if (snapshot.exists()) {
+      const p = snapshot.val();
+      if (p.online) {
+        status.textContent = "● Active now";
+        status.classList.add("online");
+      } else {
+        status.textContent = "● Last seen " + formatLastSeen(p.lastSeen);
+        status.classList.remove("online");
+      }
+    } else {
+      status.textContent = "● Offline";
+      status.classList.remove("online");
+    }
+  });
+
+  // Monitor other user's typing status
+  onValue(ref(db, `rooms/${roomCode}/typing/${otherRole}`), snapshot => {
+    typingIndicator.style.display = snapshot.val() ? "inline" : "none";
+  });
+}
+
+/* CHAT INIT & SYNC SETTINGS */
+function initChat() {
+  registerHunterPush();
+  setupPresence();
+  
+  const messagesRef = ref(db, `rooms/${roomCode}/messages`);
+  onValue(messagesRef, snapshot => {
+    const msgs = [];
+    snapshot.forEach(child => {
+      msgs.push({ id: child.key, ...child.val() });
+    });
+    render(msgs);
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      markDeliveredAndSeen(allMsgs);
+    }
+  });
+
+  const settingsRef = ref(db, `rooms/${roomCode}/settings`);
+    onValue(settingsRef, snapshot => {
+      const s = snapshot.val() || {};
+    
+      const otherRole = role === "hunter" ? "prey" : "hunter";
+
+      const preyAllowedByHunter = !s.notificationsAccess || s.notificationsAccess.prey !== false;
+      const myLocalEnabled = localStorage.getItem("hp_notify_enabled") !== "false";
+
+      if (role === "hunter") {
+        hunterMasterControlRow.style.display = "flex";
+        if (myNotificationsToggle) {
+          myNotificationsToggle.checked = myLocalEnabled;
+          myNotificationsToggle.disabled = false;
+          myNotificationsToggle.title = "";
+        }
+        if (notifySoundSelect) {
+          notifySoundSelect.value = localStorage.getItem("hp_notify_sound") || "chime";
+        }
+      } else {
+        hunterMasterControlRow.style.display = "none";
+                if (myNotificationsToggle) myNotificationsToggle.closest('.popup-row').style.display = "none";
+        if (myNotificationsToggle) {
+          myNotificationsToggle.checked = myLocalEnabled && preyAllowedByHunter;
+          myNotificationsToggle.disabled = !preyAllowedByHunter;
+          myNotificationsToggle.title = !preyAllowedByHunter ? "Alerts disabled by Hunter" : "";
+        }
+      }
+    
+          // Sync Partner Avatar
+        if (s.avatars && s.avatars[otherRole]) {
+          partnerAvatar.innerHTML = `<img src="${s.avatars[otherRole]}">`;
+        } else {
+          partnerAvatar.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+        }
+    
+        // Sync My Avatar (Settings)
+        if (s.avatars && s.avatars[role]) {
+          myAvatarPreview.style.backgroundImage = `url('${s.avatars[role]}')`;
+          myAvatarRemoveBtn.style.display = '';
+        } else {
+          myAvatarPreview.style.backgroundImage = 'none';
+          myAvatarRemoveBtn.style.display = 'none';
+        }
+    
+        // Sync Names
+        const myDefaultName = role === "hunter" ? "Hunter" : "Prey";
+        const theirDefaultName = otherRole === "hunter" ? "Hunter" : "Prey";
+        const myName = (s.names && s.names[role]) || myDefaultName;
+        const theirName = (s.names && s.names[otherRole]) || theirDefaultName;
+    
+        if (document.activeElement !== myNameInput) myNameInput.value = myName;
+            if (document.activeElement !== partnerNameInput) partnerNameInput.value = theirName;
+            chatTitle.textContent = theirName;
+    
+            if (document.activeElement !== pinUpdateInput) {
+                      pinUpdateInput.value = s.pin || roomCode;
+                    }
+    
+            // Sync Color
+        const activeColor = s.color || "#3797f0";
+        document.documentElement.style.setProperty('--right', activeColor);
+        document.body.style.setProperty('--right', activeColor);
+        colorSlider.value = activeColor;
+        colorPreviewDot.style.background = activeColor;
+    
+    // Sync Wallpaper
+        if (s.wallpaper !== undefined) {
+          applyWallpaperWithThemeTint(s.wallpaper);
+          wallpaperPreview.style.backgroundImage = s.wallpaper ? `url('${s.wallpaper}')` : 'none';
+          wallpaperRemoveBtn.style.display = s.wallpaper ? '' : 'none';
+        }
+  });
+}
+
+/* SETTINGS MODAL & PROFILE UPLOAD */
+const cropModal = document.getElementById("cropModal");
+const cropImg = document.getElementById("cropImg");
+const cropZoom = document.getElementById("cropZoom");
+const cropContainer = document.getElementById("cropContainer");
+const cropCancel = document.getElementById("cropCancel");
+const cropSave = document.getElementById("cropSave");
+
+let currentScale = 1, posX = 0, posY = 0, imgW = 0, imgH = 0;
+const CROP_SIZE = 260;
+
+function updateCropTransform() {
+  const scaledW = imgW * currentScale;
+  const scaledH = imgH * currentScale;
+  const minX = Math.min(0, CROP_SIZE - scaledW);
+  const minY = Math.min(0, CROP_SIZE - scaledH);
+  posX = Math.max(minX, Math.min(0, posX));
+  posY = Math.max(minY, Math.min(0, posY));
+  cropImg.style.transform = `translate(${posX}px, ${posY}px) scale(${currentScale})`;
+}
+
+myAvatarBtn.onclick = () => myAvatarInput.click();
+myAvatarInput.onchange = (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const url = URL.createObjectURL(f);
+  cropImg.onload = () => {
+    imgW = cropImg.naturalWidth;
+    imgH = cropImg.naturalHeight;
+    const baseScale = Math.max(CROP_SIZE / imgW, CROP_SIZE / imgH);
+    cropZoom.min = baseScale;
+    cropZoom.max = baseScale * 3;
+    cropZoom.value = baseScale;
+    currentScale = baseScale;
+    posX = (CROP_SIZE - imgW * currentScale) / 2;
+    posY = (CROP_SIZE - imgH * currentScale) / 2;
+    updateCropTransform();
+    settingsModal.style.display = "none";
+    cropModal.style.display = "flex";
+  };
+  cropImg.src = url;
+  myAvatarInput.value = "";
+};
+
+let isCropDragging = false, cropStartX = 0, cropStartY = 0;
+cropContainer.onpointerdown = (e) => {
+  isCropDragging = true;
+  cropStartX = e.clientX - posX;
+  cropStartY = e.clientY - posY;
+  cropContainer.setPointerCapture(e.pointerId);
+};
+cropContainer.onpointermove = (e) => {
+  if (!isCropDragging) return;
+  posX = e.clientX - cropStartX;
+  posY = e.clientY - cropStartY;
+  updateCropTransform();
+};
+cropContainer.onpointerup = () => isCropDragging = false;
+cropContainer.onpointercancel = () => isCropDragging = false;
+
+cropZoom.oninput = () => {
+  const oldScale = currentScale;
+  currentScale = parseFloat(cropZoom.value);
+  const scaleRatio = currentScale / oldScale;
+  const centerX = CROP_SIZE / 2;
+  const centerY = CROP_SIZE / 2;
+  posX = centerX - (centerX - posX) * scaleRatio;
+  posY = centerY - (centerY - posY) * scaleRatio;
+  updateCropTransform();
+};
+
+cropCancel.onclick = () => {
+  cropModal.style.display = "none";
+  settingsModal.style.display = "flex";
+};
+
+cropSave.onclick = async () => {
+  cropModal.style.display = "none";
+  showProgress(5);
+  const canvas = document.createElement("canvas");
+  canvas.width = 400; 
+  canvas.height = 400;
+  const ctx = canvas.getContext("2d");
+  const ratio = 400 / CROP_SIZE;
+  ctx.drawImage(cropImg, posX * ratio, posY * ratio, imgW * currentScale * ratio, imgH * currentScale * ratio);
+  
+  canvas.toBlob(async (blob) => {
+    if(!blob) return;
+    try {
+      const uniquePath = `avatar_${role}_${Date.now()}.jpg`;
+      const file = new File([blob], uniquePath, {type: "image/jpeg"});
+      const url = await uploadToSupabaseWithProgress(file, uniquePath);
+      await update(ref(db, `rooms/${roomCode}/settings`), { [`avatars/${role}`]: url });
+    } catch(err) {
+      console.error(err);
+      alert("Avatar upload failed");
+    } finally {
+      settingsModal.style.display = "flex";
+    }
+  }, "image/jpeg", 0.9);
+};
+
+myAvatarPreview.style.cursor = "pointer";
+myAvatarPreview.onclick = () => {
+  const bg = myAvatarPreview.style.backgroundImage;
+  if (bg && bg !== 'none') {
+    let url = bg.slice(5, -2);
+    if (url.startsWith('"') && url.endsWith('"')) url = url.slice(1, -1);
+    viewerContent.innerHTML = `<img src="${url}">`;
+    viewer.style.display = "flex";
+  }
+};
+
+myAvatarRemoveBtn.onclick = () => {
+  update(ref(db, `rooms/${roomCode}/settings`), { [`avatars/${role}`]: null }).catch(console.error);
+};
+
+myNameInput.onchange = () => {
+  const val = myNameInput.value.trim();
+  update(ref(db, `rooms/${roomCode}/settings`), { [`names/${role}`]: val }).catch(console.error);
+  push(ref(db, `rooms/${roomCode}/messages`), { type: "system", action: "name", target: role, value: val, sender: role, time: Date.now() });
+};
+partnerNameInput.onchange = () => {
+  const val = partnerNameInput.value.trim();
+  const otherRole = role === "hunter" ? "prey" : "hunter";
+  update(ref(db, `rooms/${roomCode}/settings`), { [`names/${otherRole}`]: val }).catch(console.error);
+  push(ref(db, `rooms/${roomCode}/messages`), { type: "system", action: "name", target: otherRole, value: val, sender: role, time: Date.now() });
+};
+pinUpdateInput.onchange = async () => {
+  const val = pinUpdateInput.value.trim();
+  if(val) {
+    if (confirm(`Are you sure you want to change the chat PIN to "${val}"?`)) {
+      await update(ref(db, `rooms/${roomCode}/settings`), { pin: val }).catch(console.error);
+      await push(ref(db, `rooms/${roomCode}/messages`), { type: "system", action: "pin", sender: role, time: Date.now() }).catch(console.error);
+    } else {
+      try {
+        const pinSnap = await get(ref(db, `rooms/${roomCode}/settings/pin`));
+        pinUpdateInput.value = pinSnap.exists() ? String(pinSnap.val()) : roomCode;
+      } catch (err) {
+        console.error(err);
+        pinUpdateInput.value = roomCode;
+      }
+    }
+  }
+};
+
+allowedRoomsInput.value = localStorage.getItem("hp_allowed_rooms") || "2007";
+allowedRoomsInput.onchange = () => {
+  localStorage.setItem("hp_allowed_rooms", allowedRoomsInput.value.trim());
+};
+
+myNotificationsToggle.onchange = async () => {
+  if (myNotificationsToggle.checked) {
+    if ("Notification" in window) {
+      try {
+        const perm = await Notification.requestPermission();
+        if (perm === "granted") {
+          localStorage.setItem("hp_notify_enabled", "true");
+                    await registerHunterPush();
+        } else {
+          myNotificationsToggle.checked = false;
+          localStorage.setItem("hp_notify_enabled", "false");
+          alert("Notification permission denied in browser settings.");
+        }
+      } catch (e) {
+        console.error(e);
+        myNotificationsToggle.checked = false;
+      }
+    } else {
+      myNotificationsToggle.checked = false;
+      alert("Notifications not supported on this browser.");
+    }
+  } else {
+    localStorage.setItem("hp_notify_enabled", "false");
+        unregisterHunterPush();
+      }
+    };
+
+notifySoundSelect.value = localStorage.getItem("hp_notify_sound") || "chime";
+notifySoundSelect.onchange = () => {
+  localStorage.setItem("hp_notify_sound", notifySoundSelect.value);
+  playNotifySound(notifySoundSelect.value);
+};
+document.getElementById("notifySoundPreview").onclick = (e) => {
+  e.preventDefault();
+  playNotifySound(notifySoundSelect.value);
+};
+
+/* SETTINGS MODAL */
+settingsBtn.onclick = () => {
+  settingsModal.style.display = "flex";
+  calculateStorage();
+};
+document.getElementById('refreshStorageBtn').onclick = calculateStorage;
+closeSettingsBtn.onclick = () => settingsModal.style.display = "none";
+settingsModal.onclick = (e) => {
+  if (e.target === settingsModal) settingsModal.style.display = "none";
+};
+
+const colorSlider = document.getElementById("colorSlider");
+const colorPreviewDot = document.getElementById("colorPreviewDot");
+const wallpaperPreview = document.getElementById("wallpaperPreview");
+colorSlider.oninput = () => {
+  colorPreviewDot.style.background = colorSlider.value;
+  update(ref(db, `rooms/${roomCode}/settings`), { color: colorSlider.value }).catch(console.error);
+};
+colorSlider.onchange = () => {
+  push(ref(db, `rooms/${roomCode}/messages`), { type: "system", action: "color", sender: role, time: Date.now() });
+};
+
+const wallpaperBtn = document.getElementById("wallpaperBtn");
+const wallpaperInput = document.getElementById("wallpaperInput");
+const wallpaperRemoveBtn = document.getElementById("wallpaperRemoveBtn");
+wallpaperBtn.onclick = () => wallpaperInput.click();
+wallpaperInput.onchange = async e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  try {
+      showProgress(5);
+      // Compress wallpaper with high quality (2000px max width) to balance speed and sharpness
+      const compressed = await compressImage(f, 2000);
+      const uniquePath = `wallpaper_${Date.now()}.jpg`;
+      const url = await uploadToSupabaseWithProgress(compressed, uniquePath);
+    await update(ref(db, `rooms/${roomCode}/settings`), { wallpaper: url });
+    push(ref(db, `rooms/${roomCode}/messages`), { type: "system", action: "wallpaper", value: "set", sender: role, time: Date.now() });
+  } catch (err) {
+    console.error(err);
+    alert("Wallpaper upload failed");
+  }
+  wallpaperInput.value = "";
+};
+    wallpaperRemoveBtn.onclick = () => {
+      if (confirm("Are you sure you want to remove the wallpaper?")) {
+        update(ref(db, `rooms/${roomCode}/settings`), { wallpaper: "" }).catch(console.error);
+        push(ref(db, `rooms/${roomCode}/messages`), { type: "system", action: "wallpaper", value: "removed", sender: role, time: Date.now() });
+      }
+    };
+
+/* NOTIFICATIONS AUDIO & VIBRATION */
+let alertAudioCtx = null;
+function playAlertChime() {
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    if (!alertAudioCtx) {
+      alertAudioCtx = new AudioContextClass();
+    }
+    if (alertAudioCtx.state === 'suspended') {
+      alertAudioCtx.resume().catch(() => {});
+    }
+    const osc = alertAudioCtx.createOscillator();
+    const gain = alertAudioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, alertAudioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(440, alertAudioCtx.currentTime + 0.18);
+    gain.gain.setValueAtTime(0.2, alertAudioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, alertAudioCtx.currentTime + 0.18);
+    osc.connect(gain);
+    gain.connect(alertAudioCtx.destination);
+    osc.start();
+    osc.stop(alertAudioCtx.currentTime + 0.18);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+const VAPID_KEY = "BDqiZWqWalp2UwMY79lw5tEyqJwivsYazIhmkVVeLk0ATvnwFfkc4tkfHzc-KkpbnzNY6fLQA-sLGyUjC4zIr68";
+let fcmMessaging = null;
+
+const NOTIFY_SOUNDS = {
+  chime: [[880, 0, 0.15], [1320, 0.15, 0.25]],
+  ding: [[1200, 0, 0.45]],
+  bubble: [[500, 0, 0.08], [800, 0.08, 0.14]],
+  pop: [[300, 0, 0.07]],
+  alert: [[900, 0, 0.12], [700, 0.16, 0.12], [900, 0.32, 0.12]],
+  none: []
+};
+
+function playNotifySound(name) {
+  const key = name || localStorage.getItem("hp_notify_sound") || "chime";
+  const seq = NOTIFY_SOUNDS[key];
+  if (!seq || !seq.length) return;
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    if (!alertAudioCtx) alertAudioCtx = new AudioContextClass();
+    if (alertAudioCtx.state === 'suspended') alertAudioCtx.resume().catch(() => {});
+    const t0 = alertAudioCtx.currentTime;
+    seq.forEach(([freq, start, dur]) => {
+      const osc = alertAudioCtx.createOscillator();
+      const gain = alertAudioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t0 + start);
+      gain.gain.setValueAtTime(0.25, t0 + start);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0 + start + dur);
+      osc.connect(gain);
+      gain.connect(alertAudioCtx.destination);
+      osc.start(t0 + start);
+      osc.stop(t0 + start + dur);
+    });
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function allowedRoomList() {
+  const str = localStorage.getItem("hp_allowed_rooms") || "2007";
+  return str.split(',').map(r => r.trim()).filter(Boolean);
+}
+
+// Registers THIS phone as the hunter device for every room (works without logging in).
+async function registerHunterPush(opts) {
+  const interactive = !!(opts && opts.interactive);
+  const fail = (m) => { if (interactive) throw new Error(m); return null; };
+  if (!isHunterDevice()) return null;
+  if (!("Notification" in window) || Notification.permission !== "granted") return fail("Notification permission is not granted");
+  if (localStorage.getItem("hp_notify_enabled") === "false") return null;
+  if (!("serviceWorker" in navigator)) return fail("Push is not supported in this browser");
+  try {
+    const reg = await navigator.serviceWorker.register("firebase-messaging-sw.js");
+    await navigator.serviceWorker.ready;
+    if (!fcmMessaging) fcmMessaging = getMessaging(app);
+    const token = await getToken(fcmMessaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
+    if (!token) return fail("Could not get a push token");
+    localStorage.setItem("hp_fcm_token", token);
+    let devId = localStorage.getItem("hp_device_id");
+    if (!devId) {
+      devId = "d" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+      localStorage.setItem("hp_device_id", devId);
+    }
+    const rec = { token: token, updated: Date.now() };
+    // Global registry (covers every room, including new ones) + per-room fallback.
+    const writes = [set(ref(db, `hunterDevices/${devId}`), rec)];
+    const rooms = new Set(allowedRoomList());
+    if (roomCode) rooms.add(roomCode);
+    rooms.forEach(r => writes.push(set(ref(db, `rooms/${r}/push/hunter`), rec)));
+    const results = await Promise.allSettled(writes);
+    if (results.every(r => r.status === "rejected")) return fail("Database refused the registration (check rules)");
+    lastPushRefresh = Date.now();
+    return token;
+  } catch (err) {
+    console.error("Push registration failed", err);
+    if (interactive) throw err;
+    return null;
+  }
+}
+
+let lastPushRefresh = 0;
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && isHunterDevice() && Date.now() - lastPushRefresh > 30 * 60 * 1000) {
+    registerHunterPush();
+  }
+});
+
+async function unregisterHunterPush() {
+  try {
+    const devId = localStorage.getItem("hp_device_id");
+    const jobs = [];
+    if (devId) jobs.push(remove(ref(db, `hunterDevices/${devId}`)));
+    const rooms = new Set(allowedRoomList());
+    if (roomCode) rooms.add(roomCode);
+    const myToken = localStorage.getItem("hp_fcm_token");
+    rooms.forEach(r => jobs.push(
+      get(ref(db, `rooms/${r}/push/hunter/token`)).then(sn => {
+        if (sn.exists() && sn.val() === myToken) return remove(ref(db, `rooms/${r}/push/hunter`));
+      })
+    ));
+    await Promise.allSettled(jobs);
+    localStorage.removeItem("hp_fcm_token");
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/* HIDDEN HUNTER-DEVICE SETTINGS: press & hold the login backdrop for 5 seconds */
+(function setupHiddenHunterPanel() {
+  const panel = document.getElementById("hunterDevicePanel");
+  const toggle = document.getElementById("hunterDeviceToggle");
+  const statusEl = document.getElementById("hunterDeviceStatus");
+  const closeBtn = document.getElementById("hunterDeviceClose");
+  let holdTimer = null, startX = 0, startY = 0;
+
+  const clearHold = () => { if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; } };
+
+  setupModal.addEventListener("pointerdown", (e) => {
+    if (e.target.closest("input, #joinBtn, .role-btn")) return;   // only the empty backdrop
+    startX = e.clientX; startY = e.clientY;
+    clearHold();
+    holdTimer = setTimeout(() => {
+      holdTimer = null;
+      if (navigator.vibrate) navigator.vibrate(40);
+      openPanel();
+    }, 5000);
+  });
+  setupModal.addEventListener("pointermove", (e) => {
+    if (holdTimer && Math.hypot(e.clientX - startX, e.clientY - startY) > 14) clearHold();
+  });
+  ["pointerup", "pointercancel", "pointerleave"].forEach(ev => setupModal.addEventListener(ev, clearHold));
+  setupModal.addEventListener("contextmenu", (e) => { if (!e.target.closest("input")) e.preventDefault(); });
+
+  function say(msg, bad) { statusEl.textContent = msg; statusEl.style.color = bad ? "#ef4444" : ""; }
+
+  function openPanel() {
+    toggle.checked = isHunterDevice();
+    say(isHunterDevice() ? "This phone is the hunter." : "");
+    panel.style.display = "flex";
+  }
+
+  toggle.onchange = async () => {
+    if (toggle.checked) {
+      try {
+        if (!("Notification" in window)) throw new Error("Notifications are not supported in this browser");
+        say("Asking for permission...");
+        const perm = await Notification.requestPermission();
+        if (perm !== "granted") throw new Error("Notification permission was denied. Allow it in browser settings.");
+        localStorage.setItem("hp_hunter_device", "1");
+        localStorage.setItem("hp_notify_enabled", "true");
+        localStorage.setItem("hp_role", "hunter");
+        say("Registering this phone...");
+        await registerHunterPush({ interactive: true });
+        say("Done. This phone is the hunter and will get every prey message.");
+        applyHunterDefaultUI();
+      } catch (err) {
+        localStorage.removeItem("hp_hunter_device");
+        toggle.checked = false;
+        say(err.message || "Failed", true);
+      }
+    } else {
+      await unregisterHunterPush();
+      localStorage.removeItem("hp_hunter_device");
+      say("This phone is no longer the hunter device.");
+    }
+  };
+
+  closeBtn.onclick = () => { panel.style.display = "none"; };
+})();
+
+function applyHunterDefaultUI() {
+  if (!isHunterDevice()) return;
+  role = "hunter";
+  document.querySelectorAll(".role-btn[data-role]").forEach(b => b.classList.toggle("active", b.dataset.role === "hunter"));
+}
+
+// Keep this phone's token fresh on every app open, even before logging in.
+if (isHunterDevice()) registerHunterPush();
+
+function triggerSignalNotification() {
+  if (role !== "hunter") return;
+  if (localStorage.getItem("hp_notify_enabled") === "false") return;
+  playNotifySound();
+  if (document.visibilityState !== "visible" && navigator.vibrate) {
+    navigator.vibrate([200, 100, 200]);
+  }
+}
+
+function legacyTriggerSignalNotification() {
+  if (localStorage.getItem("hp_notify_enabled") === "false") return;
+  if (document.visibilityState === "visible") return;
+
+  playAlertChime();
+  if (navigator.vibrate) {
+    navigator.vibrate([200, 100, 200]);
+  }
+
+  if (!("Notification" in window)) return;
+  if (Notification.permission !== "granted") return;
+
+  const showFallback = () => {
+      try {
+        const n = new Notification("•", {
+          body: "•",
+          tag: "hp-hint",
+          silent: false
+        });
+        n.onclick = () => {
+          window.focus();
+          n.close();
+        };
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
+      navigator.serviceWorker.getRegistration().then(reg => {
+        if (reg && reg.showNotification) {
+          return reg.showNotification("•", { body: "•", tag: "hp-hint", vibrate: [200, 100, 200] });
+        }
+        showFallback();
+      }).catch(() => showFallback());
+    } else {
+      showFallback();
+    }
+}
+
+/* RENDER */
+let lastMessageCount = -1;
+function render(msgs) {
+  let html = "";
+  allMsgs = msgs;
+  // Fallback for pending server timestamps during optimistic UI updates
+  msgs.forEach(m => { if (!m.time) m.time = Date.now(); });
+  msgs.sort((a, b) => a.time - b.time);
+  
+  msgs.forEach((m, i) => {
+    if (m.type === "system") {
+      let sysText = "";
+      const isMe = m.sender === role;
+      const senderDisplay = isMe ? "You" : (m.sender.charAt(0).toUpperCase() + m.sender.slice(1));
+      
+      if (m.action === "wallpaper") {
+        sysText = m.value === "set" ? `${senderDisplay} changed the chat wallpaper.` : `${senderDisplay} removed the chat wallpaper.`;
+      } else if (m.action === "color") {
+        sysText = `${senderDisplay} changed the chat theme.`;
+      } else if (m.action === "name") {
+              const targetIsMe = m.target === role;
+              const targetDisplay = targetIsMe ? (isMe ? "yourself" : "you") : (isMe ? (m.target.charAt(0).toUpperCase() + m.target.slice(1)) : "themselves");
+              sysText = `${senderDisplay} named ${targetDisplay} ${m.value || m.target}.`;
+            } else if (m.action === "pin") {
+              sysText = `${senderDisplay} changed the chat PIN.`;
+            }
+            html += `<div class="system-msg">${escapeHtml(sysText)}</div>`;
+      return;
+    }
+
+    const side = m.sender === role ? "right" : "left";
+        let bubbleClass = side;
+        let content = "";
+    
+    if (m.type === "text") {
+      content = escapeHtml(m.text);
+    }
+    
+    if (m.type === "voice") {
+        const bars = m.waveform && m.waveform.length ? m.waveform : Array.from({length: 28}, () => 6 + Math.floor(Math.random() * 14));
+        const barsHtml = bars.map((h, bi) => `<div class="waveform-bar" data-bi="${bi}" style="height:${h}px"></div>`).join("");
+        content = `<div class="voice">
+          <div class="play" data-i="${i}"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>
+          <div class="waveform" id="waveform-${i}">${barsHtml}</div>
+          <div class="duration" id="duration-${i}">${format(m.duration)}</div>
+          <audio id="audio-${i}" src="${m.src}"></audio>
+        </div>`;
+      }
+    
+    if (m.type === "media") {
+              const isLargeExternal = !m.storagePath; // Detected > 50MB file
+    
+              if (isLargeExternal) {
+                      content = `<div class="media large-file-placeholder" data-i="${i}">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                        <div style="font-size:13px;font-weight:600;margin-top:8px;">File > 50 MB</div>
+                        <div style="font-size:11px;color:var(--right);margin-top:4px;">Click to view on website</div>
+                      </div>`;
+                    } else if (m.mediaType === "document") {
+                      content = `<div class="media" data-i="${i}" style="padding:12px;background:var(--panel);display:flex;align-items:center;gap:8px;border:1px solid var(--border);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                        <span style="font-size:13px;text-decoration:underline;word-break:break-all;">${m.fileName || 'Document'}</span>
+                      </div>`;
+                    } else if (m.mediaType === "audio") {
+                content = `<div class="media" data-i="${i}" style="padding:8px;background:var(--panel);border:1px solid var(--border);">
+                  <audio src="${m.src}" controls style="max-width:180px;height:36px;"></audio>
+                </div>`;
+              } else {
+                bubbleClass += " media-only";
+                content = `<div class="media" data-i="${i}">
+                  ${m.mediaType === "image" ? `<img src="${m.src}">` : `<video src="${m.src}" muted></video>`}
+                </div>`;
+              }
+            }
+
+    let replySnippet = "";
+    if (m.replyTo) {
+      replySnippet = `<div class="bubble-reply-ref">
+        <div class="reply-user">${escapeHtml(m.replyTo.sender === role ? 'You' : m.replyTo.sender)}</div>
+        <div>${escapeHtml(m.replyTo.text)}</div>
+      </div>`;
+    }
+    
+    let reactionsHtml = "";
+        if (m.reactions) {
+          const emojis = Object.values(m.reactions);
+          if (emojis.length > 0) {
+            reactionsHtml = `<div class="reactions">${emojis.join("")}</div>`;
+          }
+        }
+    
+        let ticksHtml = "";
+                if (side === "right") {
+                  let tickColor = "rgba(255,255,255,0.6)";
+                  let tickSvg = `<svg width="14" height="10" viewBox="0 0 16 11" fill="none"><path d="M1 5.5L5 9.5L11 1.5" stroke="${tickColor}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+                  if (m.seen) {
+                    // Using translucent black ensures the tick marks dynamically darken ANY background color natively, 
+                    // bypassing the race condition where messages load before the theme color syncs.
+                    let seenColor = "rgba(0,0,0,0.55)";
+                    tickSvg = `<svg width="18" height="10" viewBox="0 0 20 11" fill="none"><path d="M1 5.5L5 9.5L11 1.5" stroke="${seenColor}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 5.5L10 9.5L18 0.5" stroke="${seenColor}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+                  } else if (m.delivered) {
+                    tickSvg = `<svg width="18" height="10" viewBox="0 0 20 11" fill="none"><path d="M1 5.5L5 9.5L11 1.5" stroke="${tickColor}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 5.5L10 9.5L18 0.5" stroke="${tickColor}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+                  }
+                  ticksHtml = `<span class="ticks" style="display:inline-flex;vertical-align:middle;margin-left:3px;">${tickSvg}</span>`;
+                }
+    
+        html += `
+                  <div class="bubble ${bubbleClass}" data-id="${m.id}" data-sender="${m.sender}">
+            ${replySnippet}
+            ${content}
+            <div class="time">${new Date(m.time).toLocaleTimeString([], {
+              hour: "2-digit", minute: "2-digit"
+            })}${m.edited ? ' • edited' : ''}${ticksHtml}</div>
+            ${reactionsHtml}
+          </div>`;
+      });
+  
+      messages.innerHTML = html;
+            attachVoice();
+            attachMedia(msgs);
+            attachLongPress();
+            messages.scrollTop = messages.scrollHeight;
+            markDeliveredAndSeen(msgs);
+
+            if (lastMessageCount >= 0 && msgs.length > lastMessageCount) {
+              const latestMsg = msgs[msgs.length - 1];
+              if (latestMsg && latestMsg.sender !== role && latestMsg.type !== "system") {
+                if (role === "hunter") {
+                  triggerSignalNotification();
+                } else {
+                  get(ref(db, `rooms/${roomCode}/settings/notificationsAccess/prey`)).then(snap => {
+                    const allowedByHunter = !snap.exists() || snap.val() !== false;
+                    if (allowedByHunter) {
+                      triggerSignalNotification();
+                    }
+                  }).catch(console.error);
+                }
+              }
+            }
+            lastMessageCount = msgs.length;
+          }
+
+/* INSTAGRAM-STYLE ACTIONS */
+function setReplyTarget(msg) {
+  replyingTo = {
+    id: msg.id,
+    sender: msg.sender,
+    text: msg.type === "text" ? msg.text : (msg.type === "voice" ? "🎤 Voice message" : "📷 Media")
+  };
+  editingMessageId = null;
+  bannerTitle.textContent = `Replying to ${msg.sender === role ? 'yourself' : msg.sender}`;
+  bannerDesc.textContent = replyingTo.text;
+  inputActionBanner.style.display = "flex";
+  contextOverlay.style.display = "none";
+  text.focus();
+  if (navigator.vibrate) navigator.vibrate(50);
+}
+
+function setEditTarget(msg) {
+  if (msg.sender !== role || msg.type !== "text") return;
+  editingMessageId = msg.id;
+  replyingTo = null;
+  bannerTitle.textContent = "Editing message";
+  bannerDesc.textContent = msg.text;
+  inputActionBanner.style.display = "flex";
+  text.value = msg.text;
+  contextOverlay.style.display = "none";
+  text.focus();
+}
+
+bannerClose.onclick = () => {
+  if (editingMessageId) text.value = "";
+  editingMessageId = null;
+  replyingTo = null;
+  inputActionBanner.style.display = "none";
+};
+
+let longPressTouchDevice = false;
+function attachLongPress(targetEls) {
+  let pressTimer;
+  let lastTap = 0;
+
+  const els = targetEls && targetEls.length ? targetEls : document.querySelectorAll('.bubble');
+  els.forEach(b => {
+    if (b.dataset.longpressAttached) return;
+    b.dataset.longpressAttached = "1";
+    let startX = 0, startY = 0, currentX = 0;
+
+    const startPress = (e) => {
+            if (e.type === 'touchstart') longPressTouchDevice = true;
+            if (e.type === 'mousedown' && longPressTouchDevice) return; // Prevent ghost clicks
+            if (e.target.closest('.play') || e.target.closest('.progress')) return;
+
+            isLongPress = false;
+      const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+      const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+      startX = clientX;
+      startY = clientY;
+      currentX = startX;
+
+      pressTimer = setTimeout(() => {
+        isLongPress = true;
+        openContextMenu(b.dataset.id, b.dataset.sender, clientX, clientY);
+      }, 450);
+    };
+
+    const movePress = (e) => {
+          if (e.type === 'mousemove' && longPressTouchDevice) return;
+          if (!startX) return;
+
+          currentX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+          const deltaX = currentX - startX;
+          if (Math.abs(deltaX) > 10) clearTimeout(pressTimer);
+          if (deltaX > 0 && deltaX < 80) {
+            b.style.transform = `translateX(${deltaX}px)`;
+          }
+        };
+
+        const endPress = (e) => {
+                        if (e.type === 'mouseup' && longPressTouchDevice) return;
+                        if (e.target.closest('.play') || e.target.closest('.progress') || e.target.closest('.reactions')) return;
+
+                        clearTimeout(pressTimer);
+              const deltaX = currentX - startX;
+              b.style.transform = '';
+
+              if (deltaX > 45) {
+                const msg = allMsgs.find(m => m.id === b.dataset.id);
+                if (msg) setReplyTarget(msg);
+              }
+              startX = 0;
+
+              // Double tap to react/unreact
+                    const currentTime = new Date().getTime();
+                    const tapLength = currentTime - lastTap;
+                    if (tapLength < 300 && tapLength > 0 && !isLongPress) {
+                      const msg = allMsgs.find(m => m.id === b.dataset.id);
+                      if (msg) {
+                        const existingReaction = msg.reactions && msg.reactions[role];
+                        if (existingReaction) {
+                          remove(ref(db, `rooms/${roomCode}/messages/${b.dataset.id}/reactions/${role}`)).catch(console.error);
+                        } else {
+                          update(ref(db, `rooms/${roomCode}/messages/${b.dataset.id}/reactions`), { [role]: "❤️" }).catch(console.error);
+                        }
+                        if (navigator.vibrate) navigator.vibrate(50);
+                      }
+                      e.preventDefault();
+                    }
+                    lastTap = currentTime;
+                  };
+
+        b.addEventListener('mousedown', startPress);
+        b.addEventListener('mousemove', movePress);
+        b.addEventListener('mouseup', endPress);
+        b.addEventListener('mouseleave', () => { clearTimeout(pressTimer); b.style.transform = ''; });
+
+        b.addEventListener('touchstart', startPress, {passive: true});
+        b.addEventListener('touchmove', movePress, {passive: true});
+        b.addEventListener('touchend', endPress);
+
+        b.addEventListener('contextmenu', e => {
+                  if (e.target.closest('.play') || e.target.closest('.progress')) return;
+                  e.preventDefault();
+                  isLongPress = true;
+          openContextMenu(b.dataset.id, b.dataset.sender, e.clientX || startX, e.clientY || startY);
+        });
+      });
+    }
+
+let statusUpdateTimeout = null;
+function markDeliveredAndSeen(msgs) {
+  if (!roomCode || !role) return;
+  const isPageVisible = document.visibilityState === 'visible';
+  const updates = {};
+  let hasUpdates = false;
+  msgs.forEach(m => {
+    if (m.sender === role) return;
+    if (!m.delivered) {
+      updates[`${m.id}/delivered`] = true;
+      hasUpdates = true;
+    }
+    if (isPageVisible && !m.seen) {
+      updates[`${m.id}/seen`] = true;
+      hasUpdates = true;
+    }
+  });
+  if (!hasUpdates) return;
+  clearTimeout(statusUpdateTimeout);
+  statusUpdateTimeout = setTimeout(() => {
+    update(ref(db, `rooms/${roomCode}/messages`), updates).catch(console.error);
+  }, 300);
+}
+
+function openContextMenu(msgId, sender, x, y) {
+  activeMessageId = msgId;
+  const msg = allMsgs.find(m => m.id === msgId);
+  const isMine = sender === role;
+  
+  document.getElementById("contextUnsend").style.display = isMine ? "flex" : "none";
+    document.getElementById("contextEdit").style.display = (isMine && msg && msg.type === "text") ? "flex" : "none";
+  
+    const saveBtn = document.getElementById("contextSave");
+    if (msg && msg.type === "media") {
+      saveBtn.style.display = "flex";
+      document.getElementById("contextSaveText").textContent = msg.mediaType === "image" ? "Save Image" : "Save Video";
+    } else {
+      saveBtn.style.display = "none";
+    }
+  
+    contextOverlay.style.display = "block";
+  const menu = document.querySelector('.context-menu');
+  
+  requestAnimationFrame(() => {
+    const rect = menu.getBoundingClientRect();
+    let top = y - rect.height - 20;
+    if (top < 20) top = y + 20; // Flip below if off-screen top
+    
+    let left = x - (rect.width / 2);
+    if (left < 10) left = 10;
+    if (left + rect.width > window.innerWidth - 10) left = window.innerWidth - rect.width - 10;
+    
+    menu.style.top = top + "px";
+    menu.style.left = left + "px";
+  });
+  
+  if (navigator.vibrate) navigator.vibrate(50);
+}
+
+contextOverlay.onclick = (e) => {
+  if (e.target === contextOverlay) contextOverlay.style.display = "none";
+};
+
+document.getElementById("contextEmojis").onclick = async (e) => {
+  if (e.target.tagName === 'SPAN') {
+    const emoji = e.target.dataset.emoji;
+    await update(ref(db, `rooms/${roomCode}/messages/${activeMessageId}/reactions`), { [role]: emoji }).catch(console.error);
+    contextOverlay.style.display = "none";
+  }
+};
+
+document.getElementById("contextReply").onclick = () => {
+  const msg = allMsgs.find(m => m.id === activeMessageId);
+  if (msg) setReplyTarget(msg);
+};
+
+document.getElementById("contextCopy").onclick = () => {
+  const msg = allMsgs.find(m => m.id === activeMessageId);
+  if (msg) {
+    const copyVal = msg.type === "text" ? msg.text : msg.src;
+    navigator.clipboard.writeText(copyVal).catch(console.error);
+  }
+  contextOverlay.style.display = "none";
+};
+
+document.getElementById("contextEdit").onclick = () => {
+  const msg = allMsgs.find(m => m.id === activeMessageId);
+  if (msg) setEditTarget(msg);
+};
+
+document.getElementById("contextSave").onclick = async () => {
+  const msg = allMsgs.find(m => m.id === activeMessageId);
+  if (msg && msg.type === "media") {
+    try {
+      const resp = await fetch(msg.src);
+      const blob = await resp.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = msg.mediaType === "image" ? `image_${Date.now()}.jpg` : `video_${Date.now()}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    } catch (err) {
+      console.error("Save failed", err);
+      // Fallback if CORS blocks the fetch
+      window.open(msg.src, '_blank');
+    }
+  }
+  contextOverlay.style.display = "none";
+};
+
+document.getElementById("contextUnsend").onclick = async () => {
+  if (confirm("Unsend this message?")) {
+    const msg = allMsgs.find(m => m.id === activeMessageId);
+    if (msg && msg.storagePath) {
+      await supabaseClient.storage.from(BUCKET_NAME).remove([msg.storagePath]).catch(console.error);
+    } else if (msg && (msg.type === 'media' || msg.type === 'voice') && msg.src) {
+      try {
+        const parts = msg.src.split(`/public/${BUCKET_NAME}/`);
+        if (parts.length > 1) {
+          const path = decodeURIComponent(parts[1]);
+          await supabaseClient.storage.from(BUCKET_NAME).remove([path]).catch(console.error);
+        }
+      } catch(e) { console.error(e); }
+    }
+    await remove(ref(db, `rooms/${roomCode}/messages/${activeMessageId}`)).catch(console.error);
+    contextOverlay.style.display = "none";
+  }
+};
+
+      /* VOICE */
+      function attachVoice() {
+        document.querySelectorAll(".play").forEach(btn => {
+          if (btn.dataset.voiceAttached) return;
+          btn.dataset.voiceAttached = "1";
+          const i = btn.dataset.i;
+          const audio = document.getElementById("audio-" + i);
+          const waveform = document.getElementById("waveform-" + i);
+          const durationEl = document.getElementById("duration-" + i);
+          if (!audio || !waveform) return;
+
+          const originalDuration = durationEl.textContent;
+          const barEls = () => Array.from(waveform.querySelectorAll('.waveform-bar'));
+
+          const setPlayedRatio = (ratio) => {
+            const bars = barEls();
+            const filledCount = Math.floor(ratio * bars.length);
+            bars.forEach((el, idx) => el.classList.toggle('played', idx < filledCount));
+          };
+
+          btn.onclick = () => {
+            if (audio.paused) {
+              audio.play();
+              btn.innerHTML = `<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
+            } else {
+              audio.pause();
+              btn.innerHTML = `<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+            }
+          };
+          audio.ontimeupdate = () => {
+            if (!audio.duration) return;
+            const ratio = audio.currentTime / audio.duration;
+            setPlayedRatio(ratio);
+            durationEl.textContent = format(Math.ceil(audio.duration - audio.currentTime));
+          };
+          audio.onended = () => {
+            btn.innerHTML = `<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+            setPlayedRatio(0);
+            durationEl.textContent = originalDuration;
+          };
+          waveform.onclick = (e) => {
+            if (!audio.duration) return;
+            const rect = waveform.getBoundingClientRect();
+            const ratio = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = ratio * audio.duration;
+            setPlayedRatio(ratio);
+          };
+        });
+      }
+
+/* MEDIA */
+function attachMedia(msgs) {
+  document.querySelectorAll(".media").forEach(el => {
+    if (el.dataset.mediaAttached) return;
+    el.dataset.mediaAttached = "1";
+    el.onclick = (e) => {
+      if (isLongPress) return;
+      const m = msgs[el.dataset.i];
+      
+      if (m.mediaType === "document" || !m.storagePath) {
+        window.open(m.src, '_blank');
+        return;
+      }
+      if (m.mediaType === "audio") return;
+      
+      viewerContent.innerHTML = m.mediaType === "image"
+        ? `<img src="${m.src}">`
+        : `<video src="${m.src}" controls autoplay></video>`;
+      viewer.style.display = "flex";
+    };
+  });
+}
+
+closeViewer.onclick = () => viewer.style.display = "none";
+viewer.onclick = e => {
+  if (e.target === viewer) viewer.style.display = "none";
+};
+
+/* UTILS */
+function formatLastSeen(ts) {
+  if (!ts) return "recently";
+  const d = new Date(ts);
+  const now = new Date();
+  const diff = now - d;
+  
+  if (diff < 60000) return "just now";
+  if (diff < 3600000) return Math.floor(diff / 60000) + "m ago";
+  
+  if (d.getDate() === now.getDate() && diff < 86400000) {
+    return "today at " + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  }
+  if (diff < 172800000) {
+    return "yesterday at " + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  }
+  return d.toLocaleDateString([], {month: 'short', day: 'numeric'}) + " at " + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+}
+
+async function compressImage(file, maxWidth = 1920) {
+  return new Promise(resolve => {
+    if (!file.type.startsWith('image/')) return resolve(file);
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let { width, height } = img;
+      if (width > maxWidth) { height = Math.round(height * maxWidth / width); width = maxWidth; }
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob(blob => {
+        resolve(blob ? new File([blob], file.name, { type: 'image/jpeg' }) : file);
+      }, 'image/jpeg', 0.95); // 95% quality for crisp high-res screens
+    };
+    img.onerror = () => resolve(file);
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+function format(s) {
+  return "0:" + String(s).padStart(2, "0");
+}
+
+function darkenColor(hex, amount) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+  const num = parseInt(hex, 16);
+  let r = (num >> 16) & 255;
+  let g = (num >> 8) & 255;
+  let b = num & 255;
+  r = Math.max(0, Math.floor(r * (1 - amount)));
+  g = Math.max(0, Math.floor(g * (1 - amount)));
+  b = Math.max(0, Math.floor(b * (1 - amount)));
+  return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+/* SEND TEXT */
+send.onclick = async () => {
+  if (recording) {
+    stopVoice();
+    return;
+  }
+
+  const trimmed = text.value.trim();
+  if (!trimmed) return;
+  
+  if (editingMessageId) {
+    await update(ref(db, `rooms/${roomCode}/messages/${editingMessageId}`), {
+      text: trimmed,
+      edited: true
+    }).catch(console.error);
+    editingMessageId = null;
+    inputActionBanner.style.display = "none";
+  } else {
+    const messagesRef = ref(db, `rooms/${roomCode}/messages`);
+    const payload = {
+          type: "text",
+          text: trimmed,
+          sender: role,
+          time: serverTimestamp()
+        };
+    if (replyingTo) {
+      payload.replyTo = replyingTo;
+      replyingTo = null;
+      inputActionBanner.style.display = "none";
+    }
+    await push(messagesRef, payload).catch(console.error);
+  }
+  
+  text.value = "";
+  set(ref(db, `rooms/${roomCode}/typing/${role}`), false).catch(console.error);
+};
+
+let typingTimeout;
+text.addEventListener('input', () => {
+  if (!role || !roomCode) return;
+  const typingRef = ref(db, `rooms/${roomCode}/typing/${role}`);
+  set(typingRef, true).catch(console.error);
+  
+  clearTimeout(typingTimeout);
+  typingTimeout = setTimeout(() => {
+    set(typingRef, false).catch(console.error);
+  }, 1500);
+});
+
+text.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    send.onclick();
+  }
+});
+
+/* SEND MEDIA */
+attachBtn.onclick = (e) => {
+  e.stopPropagation();
+  attachMenu.classList.toggle('show');
+};
+document.addEventListener('click', (e) => {
+  if(!e.target.closest('#attachMenu') && !e.target.closest('#attachBtn')) {
+    attachMenu.classList.remove('show');
+  }
+});
+
+document.querySelectorAll('.attach-file').forEach(input => {
+  input.onchange = async e => {
+    attachMenu.classList.remove('show');
+    const f = e.target.files[0];
+    if (!f) return;
+    const type = e.target.dataset.type;
+    
+    try {
+          showProgress(5);
+          const cleanName = f.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+          const uniquePath = `chat_${Date.now()}_${cleanName}`;
+      
+          let url;
+                let isExternal = false;
+                // Conditionally route large files (> 50 MB)
+                if (f.size > 50 * 1024 * 1024) {
+                  url = await uploadToAlternativeWithProgress(f);
+                  isExternal = true;
+                } else {
+                  url = await uploadToSupabaseWithProgress(f, uniquePath);
+                }
+      
+                const messagesRef = ref(db, `rooms/${roomCode}/messages`);
+                                  await push(messagesRef, {
+                                    type: "media",
+                                    src: url,
+                                    mediaType: type,
+                                    fileName: f.name,
+                                    sender: role,
+                                    time: serverTimestamp(),
+                                    storagePath: isExternal ? null : uniquePath
+                                  });
+                    } catch (error) {
+                      console.error("Upload error:", error);
+                      alert("Failed to upload " + type + "\nReason: " + (error.message || error));
+                    }
+                    e.target.value = "";
+                  };
+                });
+
+/* VOICE RECORD */
+let recorder, chunks = [], recording = false, startingUp = false, startTime, recordingCancelled = false;
+let recTimerInterval = null, recSafetyTimeout = null;
+let recAnalyser = null, recAudioCtx = null, recWaveformSamples = [];
+const voiceRecordingBar = document.getElementById("voiceRecordingBar");
+const recTimer = document.getElementById("recTimer");
+const recHintText = document.getElementById("recHintText");
+const recCancelBtn = document.getElementById("recCancelBtn");
+const recCancelledFlash = document.getElementById("recCancelledFlash");
+const MAX_RECORDING_MS = 3 * 60 * 1000;
+
+function formatRecTimer(totalSeconds) {
+  const mins = Math.floor(totalSeconds / 60);
+  const secs = totalSeconds % 60;
+  return `${mins}:${String(secs).padStart(2, "0")}`;
+}
+
+function sampleWaveform() {
+  if (!recAnalyser) return;
+  const data = new Uint8Array(recAnalyser.frequencyBinCount);
+  recAnalyser.getByteFrequencyData(data);
+  const avg = data.reduce((a, b) => a + b, 0) / data.length;
+  recWaveformSamples.push(Math.max(4, Math.min(24, Math.round(4 + (avg / 255) * 20))));
+}
+
+function resetRecordingUI() {
+  voiceRecordingBar.classList.remove('active');
+  attachBtn.style.display = '';
+  text.style.display = '';
+  recHintText.textContent = "Recording…";
+  mic.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>`;
+}
+
+async function startVoice() {
+  if (recording || startingUp) return;
+  startingUp = true;
+  recordingCancelled = false;
+
+  try {
+        // INSTAGRAM STYLE: Disable browser software filters to get pure hardware mic feed
+        const s = await navigator.mediaDevices.getUserMedia({ 
+          audio: {
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false,
+            sampleRate: 48000,
+            channelCount: 2
+          } 
+        });
+      
+        const options = { audioBitsPerSecond: 128000 };
+      
+        // Prefer native MP4 on iOS/Safari, fallback to Opus WebM for Android/Chrome
+        if (MediaRecorder.isTypeSupported('audio/mp4')) {
+          options.mimeType = 'audio/mp4';
+        } else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+          options.mimeType = 'audio/webm;codecs=opus';
+        }
+      
+        recorder = new MediaRecorder(s, options);
+        chunks = [];
+    recWaveformSamples = [];
+    startTime = Date.now();
+    recorder.ondataavailable = e => chunks.push(e.data);
+
+    try {
+      recAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const source = recAudioCtx.createMediaStreamSource(s);
+      recAnalyser = recAudioCtx.createAnalyser();
+      recAnalyser.fftSize = 64;
+      source.connect(recAnalyser);
+    } catch (audioErr) {
+      recAnalyser = null;
+    }
+
+    recorder.onstop = async () => {
+      recorder.stream.getTracks().forEach(t => t.stop());
+      recording = false;
+      clearInterval(recTimerInterval);
+      clearTimeout(recSafetyTimeout);
+      if (recAudioCtx) { recAudioCtx.close().catch(() => {}); recAudioCtx = null; recAnalyser = null; }
+
+      if (recordingCancelled) {
+        resetRecordingUI();
+        recCancelledFlash.classList.remove('show');
+        void recCancelledFlash.offsetWidth;
+        recCancelledFlash.classList.add('show');
+        return;
+      }
+
+      const duration = Math.floor((Date.now() - startTime) / 1000);
+      if (duration < 1) {
+        resetRecordingUI();
+        return; // Prevent accidental instant taps
+      }
+
+      recHintText.textContent = "Sending…";
+            recCancelBtn.style.display = 'none';
+            const fileExt = recorder.mimeType && recorder.mimeType.includes("mp4") ? "m4a" : "webm";
+            const blob = new Blob(chunks, { type: recorder.mimeType || "audio/webm" });
+            try {
+              showProgress(5);
+              const uniquePath = `voice_${Date.now()}.${fileExt}`;
+              const url = await uploadToSupabaseWithProgress(blob, uniquePath);
+
+              const messagesRef = ref(db, `rooms/${roomCode}/messages`);
+                            await push(messagesRef, {
+                              type: "voice",
+                              src: url,
+                              duration: duration,
+                              waveform: recWaveformSamples.length ? recWaveformSamples.slice(0, 40) : null,
+                              sender: role,
+                              time: serverTimestamp(),
+                              storagePath: uniquePath
+                            });
+            } catch (error) {
+              console.error("Voice upload error:", error);
+              alert("Failed to upload voice message");
+            } finally {
+              recCancelBtn.style.display = '';
+              resetRecordingUI();
+            }
+          };
+
+    recorder.start();
+        recording = true;
+        startingUp = false;
+        attachBtn.style.display = 'none';
+        text.style.display = 'none';
+        voiceRecordingBar.classList.add('active');
+    recTimer.textContent = "0:00";
+    mic.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3" fill="#ef4444"></circle></svg>`;
+
+    recTimerInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      recTimer.textContent = formatRecTimer(elapsed);
+      sampleWaveform();
+    }, 200);
+
+    recSafetyTimeout = setTimeout(() => {
+      if (recording && recorder && recorder.state !== "inactive") recorder.stop();
+    }, MAX_RECORDING_MS);
+  } catch (err) {
+    console.error("Mic access denied", err);
+    startingUp = false;
+  }
+}
+
+function stopVoice() {
+  if (!recording) return;
+  if (recorder && recorder.state !== "inactive") recorder.stop();
+}
+
+function cancelVoice() {
+  if (!recording) return;
+  recordingCancelled = true;
+  if (navigator.vibrate) navigator.vibrate(50);
+  if (recorder && recorder.state !== "inactive") recorder.stop();
+}
+
+mic.onclick = () => {
+  if (recording) {
+    stopVoice();
+  } else if (!startingUp) {
+    startVoice();
+  }
+};
+
+recCancelBtn.onclick = (e) => {
+  e.stopPropagation();
+  cancelVoice();
+};
+
+/* CLEAR */
+document.getElementById("clear").onclick = async () => {
+  if (confirm("Clear chat for everyone?")) {
+    const messagesRef = ref(db, `rooms/${roomCode}/messages`);
+    await remove(messagesRef);
+  }
+};
+</script>
+</body>
+</html>
