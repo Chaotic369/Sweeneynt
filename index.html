@@ -3254,17 +3254,38 @@ function endCall() {
 }
 
 async function getCallMedia(withVideo) {
-  if (withVideo === false) {
-    return await navigator.mediaDevices.getUserMedia({ video: false, audio: { echoCancellation: true, noiseSuppression: true } });
+  const tracks = [];
+  const stream = new MediaStream();
+
+  if (withVideo !== false) {
+    try {
+      const videoStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: callFacing, width: { ideal: 960 }, height: { ideal: 540 } },
+        audio: false
+      });
+      videoStream.getVideoTracks().forEach(t => {
+        tracks.push(t);
+        stream.addTrack(t);
+      });
+    } catch (e) {
+      console.warn("Camera unavailable; continuing without local video.", e);
+    }
   }
+
   try {
-    return await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: callFacing, width: { ideal: 960 }, height: { ideal: 540 } },
+    const audioStream = await navigator.mediaDevices.getUserMedia({
+      video: false,
       audio: { echoCancellation: true, noiseSuppression: true }
     });
+    audioStream.getAudioTracks().forEach(t => {
+      tracks.push(t);
+      stream.addTrack(t);
+    });
   } catch (e) {
-    return await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+    console.warn("Microphone unavailable; continuing in receive-only audio mode.", e);
   }
+
+  return stream;
 }
 
 function flushCallCands(pc) {
@@ -3281,6 +3302,9 @@ function makeCallPc(isCaller) {
     callRemoteVideoSeen = false;
     callOfferSeq = 0; callHandledOfferSeq = 0; callHandledAnswerSeq = 0;
   callStream.getTracks().forEach(t => pc.addTrack(t, callStream));
+  if (isCaller && !callStream.getAudioTracks().length) {
+    pc.addTransceiver("audio", { direction: "sendrecv" });
+  }
   if (isCaller && !callStream.getVideoTracks().length) {
     pc.addTransceiver("video", { direction: "sendrecv" });
   }
@@ -3320,10 +3344,13 @@ async function startCall(withVideo) {
   try {
     setCallUI(withVideo === false ? "Starting call…" : "Starting camera…", false);
         callStream = await getCallMedia(withVideo);
-        localCallVideo.srcObject = callStream;
-        syncCallCamUI();
-        await remove(callRef());
-        const pc = makeCallPc(true);
+                localCallVideo.srcObject = callStream;
+                syncCallCamUI();
+                await remove(callRef());
+                const pc = makeCallPc(true);
+                if (!callStream.getAudioTracks().length && !callStream.getVideoTracks().length) {
+                  setCallUI("Joining without microphone or camera…", false);
+                }
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
     await set(callRef(), { caller: role, status: "ringing", video: withVideo !== false, offer: JSON.stringify(offer), ts: Date.now() });
@@ -3400,10 +3427,15 @@ callAccept.onclick = async () => {
         callStatus.textContent = "Connecting…";
     const offer = callIncomingOffer;
     callStream = await getCallMedia(callIncomingVideo);
-        localCallVideo.srcObject = callStream;
-        syncCallCamUI();
-        const pc = makeCallPc(false);
-        await pc.setRemoteDescription(offer);
+            localCallVideo.srcObject = callStream;
+            syncCallCamUI();
+            const pc = makeCallPc(false);
+            await pc.setRemoteDescription(offer);
+            if (!callStream.getVideoTracks().length) {
+              pc.getTransceivers().forEach(t => {
+                if (t.receiver.track && t.receiver.track.kind === "video") t.direction = "sendrecv";
+              });
+            }
         flushCallCands(pc);
         if (!callStream.getVideoTracks().length) {
           pc.getTransceivers().forEach(t => {
