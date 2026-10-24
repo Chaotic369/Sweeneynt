@@ -322,10 +322,10 @@ body{
 .duration{font-size:11px;opacity:.7;min-width:32px;text-align:right;flex-shrink:0;}
 .speed-chip{font-size:10px;font-weight:700;min-width:28px;padding:3px 6px;border-radius:10px;background:rgba(255,255,255,.18);color:#fff;text-align:center;cursor:pointer;flex-shrink:0;user-select:none;-webkit-user-select:none;font-variant-numeric:tabular-nums}
 .speed-chip:active{opacity:.6}
-.voice{gap:8px;min-width:0;width:100%}
-.waveform{gap:1px;min-width:0;overflow:hidden}
-.waveform-bar{flex-shrink:1;min-width:1px}
-.duration{min-width:28px}
+.voice{gap:8px;width:min(260px,64vw);min-width:0;max-width:100%}
+.waveform{flex:1 1 0;min-width:0;overflow:hidden;gap:0;justify-content:space-between}
+.waveform-bar{flex:1 1 0;min-width:1px;max-width:2.5px}
+.duration{min-width:28px;flex-shrink:0}
 
 /* VOICE RECORDING BAR */
 .voice-recording-bar{
