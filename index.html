@@ -3380,6 +3380,15 @@ function initCall() {
         try { callIncomingOffer = JSON.parse(c.offer); } catch (e) { return; }
                 callIncomingVideo = c.video !== false;
                 setCallUI(`${chatTitle.textContent || "Someone"} is ${callIncomingVideo ? "calling…" : "voice calling…"}`, true);
+        playNotifySound("alert");
+        if (document.visibilityState !== "visible" && "Notification" in window && Notification.permission === "granted") {
+          try {
+            new Notification(`${chatTitle.textContent || "Incoming call"}`, {
+              body: callIncomingVideo ? "Incoming video call…" : "Incoming voice call…",
+              tag: "hp-call"
+            });
+          } catch (e) {}
+        }
         callVibeTimer = setInterval(() => { if (navigator.vibrate) navigator.vibrate([400, 200, 400]); }, 2500);
       }
     } else if (c.answer && callPc && !callAnswerSet) {
