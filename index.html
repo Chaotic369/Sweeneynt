@@ -3430,19 +3430,19 @@ callAccept.onclick = async () => {
             localCallVideo.srcObject = callStream;
             syncCallCamUI();
             const pc = makeCallPc(false);
-            await pc.setRemoteDescription(offer);
-            if (!callStream.getVideoTracks().length) {
-              pc.getTransceivers().forEach(t => {
-                if (t.receiver.track && t.receiver.track.kind === "video") t.direction = "sendrecv";
-              });
-            }
-        flushCallCands(pc);
-        if (!callStream.getVideoTracks().length) {
-          pc.getTransceivers().forEach(t => {
-            if (t.receiver.track && t.receiver.track.kind === "video") t.direction = "sendrecv";
-          });
-        }
-    const answer = await pc.createAnswer();
+                        await pc.setRemoteDescription(offer);
+                        if (!callStream.getAudioTracks().length) {
+                          pc.getTransceivers().forEach(t => {
+                            if (t.receiver.track && t.receiver.track.kind === "audio") t.direction = "recvonly";
+                          });
+                        }
+                        if (!callStream.getVideoTracks().length) {
+                          pc.getTransceivers().forEach(t => {
+                            if (t.receiver.track && t.receiver.track.kind === "video") t.direction = "recvonly";
+                          });
+                        }
+                    flushCallCands(pc);
+                        const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
     await update(callRef(), { answer: JSON.stringify(answer), status: "active" });
   } catch (e) {
